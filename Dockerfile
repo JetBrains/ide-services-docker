@@ -20,7 +20,7 @@ RUN curl https://raw.githubusercontent.com/cloudfoundry/java-buildpack-memory-ca
 FROM amazonlinux:2
 
 RUN yum -y update && \
-    yum -y install shadow-utils java-17-amazon-corretto-devel procps util-linux which gzip tar curl net-tools && \
+    yum -y install shadow-utils java-17-amazon-corretto-devel procps util-linux which gzip tar curl net-tools openssl && \
     groupadd -g 990 app && \
     useradd -r -u 990 -g app app -m
 
@@ -32,6 +32,10 @@ RUN curl -fSsL "https://packages.jetbrains.team/files/p/ij/intellij-dependencies
       -o /home/app/libyjpagent64.so
 
 ADD tbe-*.tar /app/
+
+RUN curl -LO https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux64
+RUN chmod +x jq-linux64
+RUN cp jq-linux64 /usr/bin/jq
 
 USER 990
 WORKDIR /home/app
