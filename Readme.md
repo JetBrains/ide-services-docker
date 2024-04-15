@@ -23,5 +23,5 @@ then
   exit 1
 fi
 
-docker build -t ides-server:$IDES_SERVER_VERSION .
+docker build -t tbe-server:$IDES_SERVER_VERSION .
 ```
