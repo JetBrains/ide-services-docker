@@ -10,7 +10,7 @@ Follow the steps below to build a Docker image using the provided Dockerfile.
 
 ```bash
 # check actual version in https://www.jetbrains.com/help/ide-services/get-started.html
-IDES_SERVER_VERSION=2024.2.2152
+IDES_SERVER_VERSION=2024.3.0.3038
 
 curl -OL https://download.jetbrains.com/ide-services/files/tbe-launcher-$IDES_SERVER_VERSION.tar
 curl -OL https://download.jetbrains.com/ide-services/files/tbe-launcher-$IDES_SERVER_VERSION.tar.sha256
