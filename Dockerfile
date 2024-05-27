@@ -1,8 +1,14 @@
-FROM golang:1.18 as MEMORY_CALCULATOR
+FROM golang:1.22.3 as MEMORY_CALCULATOR
 RUN mkdir -p /build-temp/src
 WORKDIR /build-temp/src
 
-RUN go install github.com/cloudfoundry/java-buildpack-memory-calculator/v4@v4.2.0
+# CGO_ENABLED=0 forces go to use native go implementations instead of calling C
+# where possible. The end result is that go links static binaries instead of
+# dynamically linking against glibc.
+# This is useful, when built java-buildpack-memory-calculator is run in
+# distributions with older version of GLIBC (e.g. a binary built with golang:1.22.3 image does not run on ubuntu 20.04,
+# which seems to be used in our helm smoke tests).
+RUN CGO_ENABLED=0 go install github.com/cloudfoundry/java-buildpack-memory-calculator/v4@v4.2.0
 RUN ls -la /go/bin/java-buildpack-memory-calculator &&  \
     /go/bin/java-buildpack-memory-calculator  --head-room 25 \
                                               --thread-count 1000 \
