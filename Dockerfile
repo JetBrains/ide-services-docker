@@ -1,4 +1,4 @@
-FROM golang:1.22.3 as MEMORY_CALCULATOR
+FROM golang:1.22.5 as MEMORY_CALCULATOR
 RUN mkdir -p /build-temp/src
 WORKDIR /build-temp/src
 
@@ -23,35 +23,29 @@ RUN curl https://raw.githubusercontent.com/cloudfoundry/java-buildpack-memory-ca
      > /go/bin/java-buildpack-memory-calculator.NOTICE && \
     cat /go/bin/java-buildpack-memory-calculator.NOTICE
 
-FROM amazonlinux:2
+FROM alpine:3.15.11
 
-RUN yum -y update && \
-    yum -y install shadow-utils java-17-amazon-corretto-devel procps util-linux which gzip tar curl net-tools openssl && \
-    groupadd -g 990 app && \
-    useradd -r -u 990 -g app app -m
+#java coretto 17 | bash is required by entrypoint script | openssl coreutils jq curl are required by tests
+RUN wget -O /etc/apk/keys/amazoncorretto.rsa.pub  https://apk.corretto.aws/amazoncorretto.rsa.pub && \
+    echo "https://apk.corretto.aws/" >> /etc/apk/repositories && \
+    apk add --update --no-cache amazon-corretto-17 bash openssl coreutils jq curl && \
+    addgroup -g 990 app && \
+    adduser --system -u 990 -g app app
+ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
 
-COPY --from=MEMORY_CALCULATOR /go/bin/java-buildpack-memory-calculator* /opt/
-COPY entrypoint.sh /app/
-
+# dev tools
 ARG YK_ENABLED
 RUN if [[ -n "$YK_ENABLED" ]]; then \
-      echo "libyjpagent64.so included"; \
-      curl -fSsL "https://packages.jetbrains.team/files/p/ij/intellij-dependencies/org/jetbrains/intellij/deps/yourkit/yjpagent/2022.9.162/libyjpagent64.so" \
-        -o /home/app/libyjpagent64.so; \
-    else \
-      echo "libyjpagent64.so excluded"; \
+      arch=$(arch); \
+      if [[ "$arch" == aarch* || "$arch" == arm* ]]; then architecture="a"; else architecture=""; fi && \
+      wget "https://packages.jetbrains.team/files/p/ij/intellij-dependencies/org/jetbrains/intellij/deps/yourkit/yjpagent/2022.9.162/libyjpagent64${architecture}.so" -O /home/app/libyjpagent64.so; \
     fi
 
-ADD tbe-*.tar /app/
-
-ARG JQ_ENABLED
-RUN if [[ -n "$JQ_ENABLED" ]]; then \
-      echo "jq-linux64 included"; \
-      curl -LO https://github.com/jqlang/jq/releases/download/jq-1.7/jq-linux64 && chmod +x jq-linux64 && cp jq-linux64 /usr/bin/jq; \
-    else \
-      echo "jq-linux64 excluded"; \
-    fi
+COPY --from=MEMORY_CALCULATOR /go/bin/java-buildpack-memory-calculator* /opt/
 
 USER 990
 WORKDIR /home/app
 CMD /app/entrypoint.sh
+
+COPY entrypoint.sh /app/
+ADD tbe-*.tar /app/
