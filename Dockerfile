@@ -1,4 +1,4 @@
-FROM golang:1.22.5 as MEMORY_CALCULATOR
+FROM golang:1.22.7 as MEMORY_CALCULATOR
 RUN mkdir -p /build-temp/src
 WORKDIR /build-temp/src
 
@@ -40,6 +40,9 @@ RUN if [[ -n "$YK_ENABLED" ]]; then \
       if [[ "$arch" == aarch* || "$arch" == arm* ]]; then architecture="a"; else architecture=""; fi && \
       wget "https://packages.jetbrains.team/files/p/ij/intellij-dependencies/org/jetbrains/intellij/deps/yourkit/yjpagent/2022.9.162/libyjpagent64${architecture}.so" -O /home/app/libyjpagent64.so; \
     fi
+
+ARG ADDITIONAL_SPRING_PROFILES=none
+ENV ADD_SPRING_PROFILES=$ADDITIONAL_SPRING_PROFILES
 
 COPY --from=MEMORY_CALCULATOR /go/bin/java-buildpack-memory-calculator* /opt/
 

@@ -7,6 +7,11 @@ DEFAULT_MAX_METASPACE_SIZE="400M"
 DEFAULT_JVM_THREAD_COUNT=200
 
 default_jvm_opts="-XX:+ExitOnOutOfMemoryError -XX:+UnlockDiagnosticVMOptions"
+
+if [[ "$ADD_SPRING_PROFILES" != "none" ]]; then
+  default_jvm_opts+=" -Dspring.profiles.include=${ADD_SPRING_PROFILES}"
+fi
+
 jvm_opts=${JAVA_TOOL_OPTIONS:-""}
 
 if test -f /sys/fs/cgroup/memory/memory.limit_in_bytes; then
@@ -34,8 +39,10 @@ if [[ $jvm_opts != *"-XX:ReservedCodeCacheSize="* ]]; then
 fi
 
 if [ -n "${DUMP_HEAP_ON_OOM}" ]; then
-  default_jvm_opts+=" -XX:-HeapDumpOnOutOfMemoryError"
-  default_jvm_opts+=" -XX:HeapDumpPath=/home/app/oom_dump.hprof"
+  uid="${POD_UID:-$(date +"%Y-%m-%d_%H-%M-%S")}"
+  mkdir /home/app/crash-dumps
+  default_jvm_opts+=" -XX:+HeapDumpOnOutOfMemoryError"
+  default_jvm_opts+=" -XX:HeapDumpPath=/home/app/crash-dumps/oom_dump_$uid.hprof"
 fi
 
 if [ -n "${YK_ENABLED}" ]; then
@@ -88,4 +95,4 @@ fi
 run_opts="$default_jvm_opts $memory_opts $jvm_opts"
 unset JAVA_TOOL_OPTIONS
 export JAVA_OPTS=$run_opts
-/app/tbe-launcher-*/bin/tbe-launcher
+exec /app/tbe-launcher-*/bin/tbe-launcher
