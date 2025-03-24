@@ -1,6 +1,6 @@
 ARG JDK_OR_JRE=jdk
 ARG JAVA_VERSION=21
-FROM registry.jetbrains.team/p/toolbox-enterprise/public/base-temurin:${JAVA_VERSION}-${JDK_OR_JRE}-alpine-12
+FROM registry.jetbrains.team/p/toolbox-enterprise/public/base-temurin:${JAVA_VERSION}-${JDK_OR_JRE}-alpine-20
 
 ARG YK_ENABLED
 ENV YK_ENABLED=${YK_ENABLED}
