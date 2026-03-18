@@ -1,6 +1,6 @@
 ARG JDK_OR_JRE=jdk
 ARG JAVA_VERSION=21
-FROM registry.jetbrains.team/p/toolbox-enterprise/public/base-temurin:${JAVA_VERSION}-${JDK_OR_JRE}-alpine-65
+FROM registry.jetbrains.team/p/toolbox-enterprise/public/base-temurin:${JAVA_VERSION}-${JDK_OR_JRE}-alpine-68
 
 ARG YK_ENABLED
 ENV YK_ENABLED=${YK_ENABLED}
@@ -11,8 +11,8 @@ RUN if [[ -n "$YK_ENABLED" ]]; then \
     fi
 
 
-ARG ADDITIONAL_SPRING_PROFILES=none
-ENV ADD_SPRING_PROFILES=${ADDITIONAL_SPRING_PROFILES}
+ARG CUSTOM_ACTIVE_PROFILE_GROUP=none
+ENV SET_ACTIVE_PROFILE_GROUP=${CUSTOM_ACTIVE_PROFILE_GROUP}
 
 CMD ["/app/entrypoint.sh"]
 

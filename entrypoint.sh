@@ -8,8 +8,8 @@ DEFAULT_JVM_THREAD_COUNT=200
 
 default_jvm_opts="-XX:+ExitOnOutOfMemoryError -XX:+UnlockDiagnosticVMOptions"
 
-if [[ "$ADD_SPRING_PROFILES" != "none" ]]; then
-  default_jvm_opts+=" -Dspring.profiles.include=${ADD_SPRING_PROFILES}"
+if [[ "$SET_ACTIVE_PROFILE_GROUP" != "none" ]]; then
+  default_jvm_opts+=" -Dspring.profiles.active=${SET_ACTIVE_PROFILE_GROUP}"
 fi
 
 jvm_opts=${JAVA_TOOL_OPTIONS:-""}
